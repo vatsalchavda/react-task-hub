@@ -1,0 +1,53 @@
+{
+  "name": "react-task-hub",
+  "version": "1.0.0",
+  "description": "Scalable task management application with React, Redux, and GraphQL",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack serve --mode development --host 0.0.0.0 --port 3000",
+    "build": "webpack --mode production",
+    "test": "jest",
+    "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
+    "docker:build": "docker build -t react-task-hub .",
+    "docker:run": "docker run -p 3000:3000 react-task-hub",
+    "docker:dev": "docker-compose up"
+  },
+  "keywords": [
+    "react",
+    "redux",
+    "graphql",
+    "typescript",
+    "webpack",
+    "docker"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@apollo/client": "^3.8.8",
+    "@reduxjs/toolkit": "^2.0.1",
+    "graphql": "^16.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^9.0.4",
+    "react-router-dom": "^6.21.1",
+    "redux": "^5.0.1",
+    "redux-thunk": "^3.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.6",
+    "@babel/preset-env": "^7.23.6",
+    "@babel/preset-react": "^7.23.3",
+    "@babel/preset-typescript": "^7.23.3",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@types/react-redux": "^7.1.33",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^6.8.1",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^3.3.3",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  }
+}
