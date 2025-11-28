@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { store } from '@store/index';
 import { useTasks } from '@hooks/useTasks';
 import { Task, TaskStatus, TaskPriority } from './types';
+import { sampleTasks } from './data/sampleTasks';
 import './App.css';
 
 /**
@@ -120,43 +121,6 @@ const TasksPage: React.FC = () => {
   };
 
   const handleAddSampleTasks = async () => {
-    const sampleTasks = [
-      // High Priority Tasks
-      { title: 'Fix critical security vulnerability', description: 'Address CVE-2024-1234 in authentication module', status: TaskStatus.IN_PROGRESS, priority: TaskPriority.HIGH },
-      { title: 'Deploy production hotfix', description: 'Emergency fix for payment processing bug', status: TaskStatus.TODO, priority: TaskPriority.HIGH },
-      { title: 'Review pull request #456', description: 'Critical feature for Q4 release', status: TaskStatus.TODO, priority: TaskPriority.HIGH },
-      
-      // Medium Priority Tasks
-      { title: 'Update API documentation', description: 'Document new endpoints for v2.0 API', status: TaskStatus.IN_PROGRESS, priority: TaskPriority.MEDIUM },
-      { title: 'Refactor user authentication', description: 'Improve code quality and add unit tests', status: TaskStatus.TODO, priority: TaskPriority.MEDIUM },
-      { title: 'Optimize database queries', description: 'Reduce query time for dashboard analytics', status: TaskStatus.TODO, priority: TaskPriority.MEDIUM },
-      { title: 'Implement dark mode', description: 'Add theme toggle and dark color scheme', status: TaskStatus.IN_PROGRESS, priority: TaskPriority.MEDIUM },
-      { title: 'Add error logging', description: 'Integrate Sentry for error tracking', status: TaskStatus.COMPLETED, priority: TaskPriority.MEDIUM },
-      
-      // Low Priority Tasks
-      { title: 'Update README documentation', description: 'Add installation instructions and examples', status: TaskStatus.TODO, priority: TaskPriority.LOW },
-      { title: 'Clean up old dependencies', description: 'Remove unused npm packages', status: TaskStatus.TODO, priority: TaskPriority.LOW },
-      { title: 'Add code comments', description: 'Document complex algorithms in utils', status: TaskStatus.COMPLETED, priority: TaskPriority.LOW },
-      { title: 'Organize project files', description: 'Restructure components directory', status: TaskStatus.COMPLETED, priority: TaskPriority.LOW },
-      
-      // Urgent Priority Tasks
-      { title: 'Server downtime investigation', description: 'Production server experiencing intermittent outages', status: TaskStatus.IN_PROGRESS, priority: TaskPriority.URGENT },
-      { title: 'Data breach response', description: 'Investigate and contain potential security incident', status: TaskStatus.TODO, priority: TaskPriority.URGENT },
-      
-      // More variety for pagination testing
-      { title: 'Write unit tests for TaskSlice', description: 'Achieve 80% code coverage for Redux slice', status: TaskStatus.TODO, priority: TaskPriority.MEDIUM },
-      { title: 'Setup CI/CD pipeline', description: 'Configure GitHub Actions for automated testing', status: TaskStatus.IN_PROGRESS, priority: TaskPriority.HIGH },
-      { title: 'Design new landing page', description: 'Create mockups for marketing site redesign', status: TaskStatus.TODO, priority: TaskPriority.LOW },
-      { title: 'Migrate to TypeScript 5.0', description: 'Update project to latest TypeScript version', status: TaskStatus.COMPLETED, priority: TaskPriority.MEDIUM },
-      { title: 'Add accessibility audit', description: 'Run WAVE and axe DevTools on all pages', status: TaskStatus.TODO, priority: TaskPriority.HIGH },
-      { title: 'Performance optimization', description: 'Reduce bundle size and improve load time', status: TaskStatus.IN_PROGRESS, priority: TaskPriority.MEDIUM },
-      { title: 'Update dependencies', description: 'Upgrade React to v18.3 and other packages', status: TaskStatus.COMPLETED, priority: TaskPriority.LOW },
-      { title: 'Create user onboarding flow', description: 'Design and implement tutorial for new users', status: TaskStatus.TODO, priority: TaskPriority.MEDIUM },
-      { title: 'Add internationalization', description: 'Support multiple languages (i18n)', status: TaskStatus.TODO, priority: TaskPriority.LOW },
-      { title: 'Implement rate limiting', description: 'Add API rate limiting to prevent abuse', status: TaskStatus.TODO, priority: TaskPriority.HIGH },
-      { title: 'Setup monitoring dashboard', description: 'Configure Grafana for system metrics', status: TaskStatus.IN_PROGRESS, priority: TaskPriority.MEDIUM },
-    ];
-
     try {
       // Add tasks sequentially to demonstrate Redux Thunk
       for (const task of sampleTasks) {
