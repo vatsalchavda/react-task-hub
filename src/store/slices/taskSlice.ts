@@ -9,92 +9,119 @@ interface TaskState {
   error: string | null;
 }
 
+// Initial demo task
+const demoTask: Task = {
+  id: '1',
+  title: 'Welcome to React Task Hub with Redux',
+  description: 'This application demonstrates Redux Toolkit, Redux Thunk for async operations, TypeScript for type safety, and WCAG 2.1 AA accessibility. Try creating, editing, and deleting tasks!',
+  status: TaskStatus.TODO,
+  priority: 'MEDIUM' as any,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
 const initialState: TaskState = {
-  tasks: [],
+  tasks: [demoTask],
   selectedTask: null,
   filter: {},
   loading: false,
   error: null,
 };
 
+// Simulate API delay for realistic async behavior
+const simulateApiDelay = () => new Promise(resolve => setTimeout(resolve, 500));
+
+/**
+ * Fetch Tasks Thunk
+ * Simulates API call with delay to demonstrate Redux Thunk async handling
+ */
 export const fetchTasks = createAsyncThunk(
   'tasks/fetchTasks',
-  async (filter: TaskFilter = {}, { rejectWithValue }) => {
+  async (filter: TaskFilter = {}, { rejectWithValue, getState }) => {
     try {
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filter }),
-      });
+      await simulateApiDelay();
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch tasks');
-      }
-      
-      const data = await response.json();
-      return data.tasks;
+      // In a real app, this would be an API call
+      // For demo, return tasks from current state
+      const state = getState() as { tasks: TaskState };
+      return state.tasks.tasks;
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
   }
 );
 
+/**
+ * Create Task Thunk
+ * Demonstrates Redux Thunk with simulated async operation
+ */
 export const createTask = createAsyncThunk(
   'tasks/createTask',
   async (taskData: Partial<Task>, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(taskData),
-      });
+      await simulateApiDelay();
       
-      if (!response.ok) {
-        throw new Error('Failed to create task');
-      }
+      // Simulate API response
+      const newTask: Task = {
+        id: Date.now().toString(),
+        title: taskData.title || '',
+        description: taskData.description || '',
+        status: taskData.status || TaskStatus.TODO,
+        priority: taskData.priority || 'MEDIUM' as any,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
       
-      const data = await response.json();
-      return data.task;
+      return newTask;
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
   }
 );
 
+/**
+ * Update Task Thunk
+ * Demonstrates Redux Thunk for update operations
+ */
 export const updateTask = createAsyncThunk(
   'tasks/updateTask',
-  async ({ id, updates }: { id: string; updates: Partial<Task> }, { rejectWithValue }) => {
+  async ({ id, updates }: { id: string; updates: Partial<Task> }, { rejectWithValue, getState }) => {
     try {
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
+      await simulateApiDelay();
       
-      if (!response.ok) {
-        throw new Error('Failed to update task');
+      // Find existing task
+      const state = getState() as { tasks: TaskState };
+      const existingTask = state.tasks.tasks.find(t => t.id === id);
+      
+      if (!existingTask) {
+        throw new Error('Task not found');
       }
       
-      const data = await response.json();
-      return data.task;
+      // Simulate API response with updated task
+      const updatedTask: Task = {
+        ...existingTask,
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      };
+      
+      return updatedTask;
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
   }
 );
 
+/**
+ * Delete Task Thunk
+ * Demonstrates Redux Thunk for delete operations
+ */
 export const deleteTask = createAsyncThunk(
   'tasks/deleteTask',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: 'DELETE',
-      });
+      await simulateApiDelay();
       
-      if (!response.ok) {
-        throw new Error('Failed to delete task');
-      }
-      
+      // Simulate successful deletion
       return id;
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -125,6 +152,7 @@ const taskSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch Tasks
       .addCase(fetchTasks.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -137,6 +165,7 @@ const taskSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      // Create Task
       .addCase(createTask.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -144,11 +173,13 @@ const taskSlice = createSlice({
       .addCase(createTask.fulfilled, (state, action) => {
         state.loading = false;
         state.tasks.push(action.payload);
+        state.error = null;
       })
       .addCase(createTask.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
+      // Update Task
       .addCase(updateTask.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -159,11 +190,13 @@ const taskSlice = createSlice({
         if (index !== -1) {
           state.tasks[index] = action.payload;
         }
+        state.error = null;
       })
       .addCase(updateTask.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
+      // Delete Task
       .addCase(deleteTask.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -171,6 +204,7 @@ const taskSlice = createSlice({
       .addCase(deleteTask.fulfilled, (state, action) => {
         state.loading = false;
         state.tasks = state.tasks.filter(t => t.id !== action.payload);
+        state.error = null;
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.loading = false;
@@ -181,5 +215,35 @@ const taskSlice = createSlice({
 
 export const { setSelectedTask, setFilter, clearError, updateTaskStatus } = taskSlice.actions;
 export default taskSlice.reducer;
+
+/**
+ * INTERVIEW TALKING POINTS:
+ * 
+ * 1. REDUX THUNK DEMONSTRATION:
+ *    - All async operations use createAsyncThunk
+ *    - Three lifecycle states: pending, fulfilled, rejected
+ *    - Simulated API delays show real async behavior
+ *    - Error handling with rejectWithValue
+ * 
+ * 2. TYPE SAFETY:
+ *    - Full TypeScript typing throughout
+ *    - Type-safe action creators
+ *    - Type-safe state access
+ * 
+ * 3. IMMUTABLE UPDATES:
+ *    - Redux Toolkit uses Immer internally
+ *    - Can write "mutating" code that's actually immutable
+ *    - State updates are predictable
+ * 
+ * 4. SCALABILITY:
+ *    - Modular slice architecture
+ *    - Easy to add new async operations
+ *    - Clear separation of concerns
+ * 
+ * 5. REAL-WORLD READY:
+ *    - Replace simulateApiDelay with actual fetch calls
+ *    - Error handling already in place
+ *    - Loading states for UX feedback
+ */
 
 // Made with Bob

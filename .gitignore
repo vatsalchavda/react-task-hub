@@ -11,3 +11,11 @@ yarn-debug.log*
 yarn-error.log*
 .vscode
 .idea
+
+# Interview preparation files (private)
+KNOWLEDGE_BASE.md
+
+# Backup files
+*.backup.tsx
+*.backup.ts
+*.backup.js
