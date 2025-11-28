@@ -206,6 +206,116 @@ const TasksPage: React.FC = () => {
           </button>
         </div>
 
+        {/* Filter Bar */}
+        <div
+          style={{
+            marginBottom: '20px',
+            padding: '16px',
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          }}
+          role="region"
+          aria-label="Task filters"
+        >
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+            {/* Status Filter */}
+            <div style={{ flex: '1', minWidth: '200px' }}>
+              <label
+                htmlFor="status-filter"
+                style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontWeight: '500',
+                  color: '#333',
+                  fontSize: '14px',
+                }}
+              >
+                Filter by Status
+              </label>
+              <select
+                id="status-filter"
+                value={filter.status || 'all'}
+                onChange={(e) => setFilter({ ...filter, status: e.target.value === 'all' ? undefined : e.target.value as TaskStatus })}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #ced4da',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  backgroundColor: 'white',
+                }}
+                aria-label="Filter tasks by status"
+              >
+                <option value="all">All Statuses</option>
+                <option value="TODO">To Do</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="COMPLETED">Completed</option>
+              </select>
+            </div>
+
+            {/* Priority Filter */}
+            <div style={{ flex: '1', minWidth: '200px' }}>
+              <label
+                htmlFor="priority-filter"
+                style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontWeight: '500',
+                  color: '#333',
+                  fontSize: '14px',
+                }}
+              >
+                Filter by Priority
+              </label>
+              <select
+                id="priority-filter"
+                value={filter.priority || 'all'}
+                onChange={(e) => setFilter({ ...filter, priority: e.target.value === 'all' ? undefined : e.target.value as TaskPriority })}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #ced4da',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  backgroundColor: 'white',
+                }}
+                aria-label="Filter tasks by priority"
+              >
+                <option value="all">All Priorities</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
+              </select>
+            </div>
+
+            {/* Clear Filters Button */}
+            {(filter.status || filter.priority) && (
+              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                <button
+                  onClick={() => setFilter({ status: undefined, priority: undefined })}
+                  aria-label="Clear all filters"
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                  }}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Loading state */}
         {loading && (
           <div 
@@ -240,7 +350,26 @@ const TasksPage: React.FC = () => {
         )}
 
         {/* Task list */}
-        {!loading && tasks.length === 0 ? (
+        {!loading && filteredTasks.length === 0 && tasks.length > 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6c757d' }}>
+            <p style={{ fontSize: '18px' }}>No tasks match the current filters.</p>
+            <button
+              onClick={() => setFilter({ status: undefined, priority: undefined })}
+              style={{
+                marginTop: '12px',
+                padding: '8px 16px',
+                backgroundColor: '#667eea',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+              }}
+            >
+              Clear Filters
+            </button>
+          </div>
+        ) : !loading && tasks.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6c757d' }}>
             <p style={{ fontSize: '18px' }}>No tasks yet. Click "Add Task" to get started!</p>
           </div>
@@ -250,7 +379,7 @@ const TasksPage: React.FC = () => {
             role="list"
             aria-labelledby="tasks-heading"
           >
-            {tasks.map(task => (
+            {filteredTasks.map(task => (
               <article
                 key={task.id}
                 role="listitem"
