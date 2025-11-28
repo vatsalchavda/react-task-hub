@@ -49,4 +49,3 @@ export const UPDATE_TASK_STATUS = gql`
     }
   }
 `;
-

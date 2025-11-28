@@ -124,4 +124,3 @@ export const useTasks = () => {
     setItemsPerPage: handleSetItemsPerPage,
   };
 };
-
