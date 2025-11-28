@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@store/index';
 import {
   fetchTasks,
@@ -7,14 +7,39 @@ import {
   deleteTask,
   setFilter,
   setSelectedTask,
+  setPage,
+  setItemsPerPage,
+  updateTotalPages,
 } from '@store/slices/taskSlice';
-import { Task, TaskFilter } from '../types';
+import { Task, TaskFilter, TaskStatus, TaskPriority } from '../types';
 
 export const useTasks = () => {
   const dispatch = useAppDispatch();
-  const { tasks, selectedTask, filter, loading, error } = useAppSelector(
+  const { tasks, selectedTask, filter, pagination, loading, error } = useAppSelector(
     (state) => state.tasks
   );
+
+  // Filter tasks based on current filter
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      const statusMatch = !filter.status || task.status === filter.status;
+      const priorityMatch = !filter.priority || task.priority === filter.priority;
+      return statusMatch && priorityMatch;
+    });
+  }, [tasks, filter]);
+
+  // Calculate paginated tasks
+  const paginatedTasks = useMemo(() => {
+    const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+    const endIndex = startIndex + pagination.itemsPerPage;
+    return filteredTasks.slice(startIndex, endIndex);
+  }, [filteredTasks, pagination.currentPage, pagination.itemsPerPage]);
+
+  // Update total pages when filtered tasks change
+  useEffect(() => {
+    const totalPages = Math.ceil(filteredTasks.length / pagination.itemsPerPage) || 1;
+    dispatch(updateTotalPages(totalPages));
+  }, [filteredTasks.length, pagination.itemsPerPage, dispatch]);
 
   useEffect(() => {
     dispatch(fetchTasks(filter));
@@ -67,10 +92,27 @@ export const useTasks = () => {
     [dispatch]
   );
 
+  const handleSetPage = useCallback(
+    (page: number) => {
+      dispatch(setPage(page));
+    },
+    [dispatch]
+  );
+
+  const handleSetItemsPerPage = useCallback(
+    (itemsPerPage: number) => {
+      dispatch(setItemsPerPage(itemsPerPage));
+    },
+    [dispatch]
+  );
+
   return {
-    tasks,
+    tasks: paginatedTasks,
+    allTasks: tasks,
+    filteredTasks,
     selectedTask,
     filter,
+    pagination,
     loading,
     error,
     createTask: handleCreateTask,
@@ -78,6 +120,8 @@ export const useTasks = () => {
     deleteTask: handleDeleteTask,
     setFilter: handleSetFilter,
     selectTask: handleSelectTask,
+    setPage: handleSetPage,
+    setItemsPerPage: handleSetItemsPerPage,
   };
 };
 

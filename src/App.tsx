@@ -19,8 +19,10 @@ import './App.css';
 const TasksPage: React.FC = () => {
   const {
     tasks,
+    filteredTasks,
     selectedTask,
     filter,
+    pagination,
     loading,
     error,
     createTask,
@@ -28,6 +30,8 @@ const TasksPage: React.FC = () => {
     deleteTask,
     setFilter,
     selectTask,
+    setPage,
+    setItemsPerPage,
   } = useTasks();
 
   const [showForm, setShowForm] = useState(false);
@@ -182,7 +186,7 @@ const TasksPage: React.FC = () => {
         {/* Header with task count and add button */}
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0, color: '#333' }} id="tasks-heading">
-            Tasks ({tasks.length})
+            Tasks ({filteredTasks.length})
           </h2>
           <button
             onClick={handleCreateTask}
@@ -499,6 +503,113 @@ const TasksPage: React.FC = () => {
             </div>
           </div>
         )}
+        {/* Pagination Controls */}
+        {filteredTasks.length > 0 && (
+          <div
+            style={{
+              marginTop: '24px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '16px',
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            }}
+            role="navigation"
+            aria-label="Pagination"
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <label htmlFor="items-per-page" style={{ color: '#6c757d', fontSize: '14px' }}>
+                Items per page:
+              </label>
+              <select
+                id="items-per-page"
+                value={pagination.itemsPerPage}
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                style={{
+                  padding: '6px 12px',
+                  border: '1px solid #ced4da',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                }}
+                aria-label="Select items per page"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              <span style={{ color: '#6c757d', fontSize: '14px' }}>
+                Showing {Math.min((pagination.currentPage - 1) * pagination.itemsPerPage + 1, filteredTasks.length)} - {Math.min(pagination.currentPage * pagination.itemsPerPage, filteredTasks.length)} of {filteredTasks.length}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                onClick={() => setPage(pagination.currentPage - 1)}
+                disabled={pagination.currentPage === 1}
+                aria-label="Go to previous page"
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: pagination.currentPage === 1 ? '#e9ecef' : '#667eea',
+                  color: pagination.currentPage === 1 ? '#6c757d' : 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: pagination.currentPage === 1 ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                }}
+              >
+                Previous
+              </button>
+
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setPage(page)}
+                    aria-label={`Go to page ${page}`}
+                    aria-current={pagination.currentPage === page ? 'page' : undefined}
+                    style={{
+                      padding: '8px 12px',
+                      backgroundColor: pagination.currentPage === page ? '#667eea' : 'white',
+                      color: pagination.currentPage === page ? 'white' : '#667eea',
+                      border: `1px solid ${pagination.currentPage === page ? '#667eea' : '#ced4da'}`,
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: pagination.currentPage === page ? '600' : '400',
+                      minWidth: '36px',
+                    }}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setPage(pagination.currentPage + 1)}
+                disabled={pagination.currentPage === pagination.totalPages}
+                aria-label="Go to next page"
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: pagination.currentPage === pagination.totalPages ? '#e9ecef' : '#667eea',
+                  color: pagination.currentPage === pagination.totalPages ? '#6c757d' : 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: pagination.currentPage === pagination.totalPages ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
       </main>
 
       {/* Live region for screen reader announcements */}

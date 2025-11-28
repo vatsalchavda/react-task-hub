@@ -5,6 +5,11 @@ interface TaskState {
   tasks: Task[];
   selectedTask: Task | null;
   filter: TaskFilter;
+  pagination: {
+    currentPage: number;
+    itemsPerPage: number;
+    totalPages: number;
+  };
   loading: boolean;
   error: string | null;
 }
@@ -24,6 +29,11 @@ const initialState: TaskState = {
   tasks: [demoTask],
   selectedTask: null,
   filter: {},
+  pagination: {
+    currentPage: 1,
+    itemsPerPage: 10,
+    totalPages: 1,
+  },
   loading: false,
   error: null,
 };
@@ -138,6 +148,8 @@ const taskSlice = createSlice({
     },
     setFilter: (state, action: PayloadAction<TaskFilter>) => {
       state.filter = action.payload;
+      // Reset to first page when filter changes
+      state.pagination.currentPage = 1;
     },
     clearError: (state) => {
       state.error = null;
@@ -148,6 +160,16 @@ const taskSlice = createSlice({
         task.status = action.payload.status;
         task.updatedAt = new Date().toISOString();
       }
+    },
+    setPage: (state, action: PayloadAction<number>) => {
+      state.pagination.currentPage = action.payload;
+    },
+    setItemsPerPage: (state, action: PayloadAction<number>) => {
+      state.pagination.itemsPerPage = action.payload;
+      state.pagination.currentPage = 1; // Reset to first page
+    },
+    updateTotalPages: (state, action: PayloadAction<number>) => {
+      state.pagination.totalPages = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -213,7 +235,7 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setSelectedTask, setFilter, clearError, updateTaskStatus } = taskSlice.actions;
+export const { setSelectedTask, setFilter, clearError, updateTaskStatus, setPage, setItemsPerPage, updateTotalPages } = taskSlice.actions;
 export default taskSlice.reducer;
 
 /**

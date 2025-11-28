@@ -53,8 +53,9 @@ This document contains everything you need to know for your interview. Focus on 
 4. **State Management**: Redux for predictable state updates
 5. **Async Operations**: Redux Thunk for handling API calls
 6. **Error Handling**: Comprehensive try-catch blocks
-7. **Performance**: Memoization with useCallback/useMemo
+7. **Performance**: Memoization with useCallback/useMemo for filtered and paginated data
 8. **Maintainability**: Custom hooks for reusable logic
+9. **Scalability**: Pagination with configurable items per page (5, 10, 20, 50)
 
 ---
 
@@ -92,6 +93,18 @@ This document contains everything you need to know for your interview. Focus on 
 - [ ] Status filters: All, Active, Completed
 - [ ] Priority filters: All, High, Medium, Low
 - [ ] Filters update task list correctly
+- [ ] Pagination resets to page 1 when filters change
+
+#### ✅ Pagination
+- [ ] Create 10+ tasks to test pagination
+- [ ] Previous/Next buttons work correctly
+- [ ] Previous button disabled on first page
+- [ ] Next button disabled on last page
+- [ ] Page number buttons navigate correctly
+- [ ] Items per page selector (5, 10, 20, 50) works
+- [ ] Correct number of tasks displayed per page
+- [ ] Pagination works with filters applied
+- [ ] Page numbers update when items per page changes
 
 #### ✅ Accessibility
 - [ ] Tab key navigates through all interactive elements
@@ -446,9 +459,13 @@ This separation ensures maintainability and testability."
    - "All interactive elements have ARIA labels for screen readers."
    - "This meets WCAG 2.1 AA standards."
 
-4. **Filters** (30 seconds)
+4. **Filters & Pagination** (45 seconds)
    - Click different filter buttons
    - "Filters demonstrate Redux state management - the filter state updates and components re-render efficiently."
+   - Navigate through pages using Previous/Next buttons
+   - "Notice pagination is managed in Redux state. When I change filters, it automatically resets to page 1."
+   - Change items per page
+   - "The pagination uses useMemo to optimize performance - it only recalculates when filtered tasks or page settings change."
 
 ### Technical Highlights (1 minute)
 
@@ -457,8 +474,10 @@ This separation ensures maintainability and testability."
 1. **Redux Toolkit**: Reduces boilerplate, includes Redux Thunk, uses Immer for immutable updates
 2. **TypeScript**: Full type safety prevents runtime errors, improves IDE support
 3. **Custom Hooks**: `useTasks` hook abstracts Redux complexity from components
-4. **Accessibility**: Semantic HTML, ARIA labels, keyboard navigation, focus management
-5. **Docker**: Containerized for consistent deployment across environments
+4. **Performance Optimization**: useMemo for filtered and paginated data prevents unnecessary recalculations
+5. **Pagination**: Redux-managed pagination with configurable items per page shows scalability thinking
+6. **Accessibility**: Semantic HTML, ARIA labels, keyboard navigation, focus management
+7. **Docker**: Containerized for consistent deployment across environments
 
 The application is production-ready and follows enterprise best practices."
 
@@ -1513,6 +1532,60 @@ Main application component.
 3. **Centralized State**: Single source of truth
 4. **Reusable Hooks**: Share logic across components
 5. **Component Composition**: Build complex UIs from simple parts
+6. **Pagination**: Handles large datasets efficiently with configurable page sizes
+7. **Performance Optimization**: Memoization prevents unnecessary recalculations
+
+### Pagination Implementation
+
+**Why Pagination Matters:**
+- Demonstrates scalability thinking for enterprise applications
+- Shows understanding of performance optimization
+- Proves ability to handle large datasets
+- Indicates awareness of user experience considerations
+
+**Technical Implementation:**
+```typescript
+// Redux state includes pagination
+interface TaskState {
+  tasks: Task[];
+  pagination: {
+    currentPage: number;
+    itemsPerPage: number;
+    totalPages: number;
+  };
+}
+
+// Memoized filtered tasks
+const filteredTasks = useMemo(() => {
+  return tasks.filter(task => {
+    const statusMatch = !filter.status || task.status === filter.status;
+    const priorityMatch = !filter.priority || task.priority === filter.priority;
+    return statusMatch && priorityMatch;
+  });
+}, [tasks, filter]);
+
+// Memoized paginated subset
+const paginatedTasks = useMemo(() => {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return filteredTasks.slice(startIndex, endIndex);
+}, [filteredTasks, currentPage, itemsPerPage]);
+```
+
+**Key Features:**
+- Configurable items per page (5, 10, 20, 50)
+- Automatic page reset when filters change
+- Previous/Next navigation with disabled states
+- Page number buttons (shows 5 pages at a time)
+- Fully accessible with ARIA labels
+- Performance optimized with useMemo
+
+**Interview Talking Points:**
+1. "I implemented pagination to demonstrate scalability thinking - in a real enterprise app, you'd have thousands of tasks."
+2. "The pagination state is managed in Redux, ensuring consistency across the application."
+3. "I used useMemo to optimize performance - filtered and paginated tasks only recalculate when dependencies change."
+4. "The pagination automatically resets to page 1 when filters change, providing a better user experience."
+5. "All pagination controls are keyboard accessible and have ARIA labels for screen readers."
 
 ---
 
