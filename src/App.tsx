@@ -449,7 +449,7 @@ const TasksPage: React.FC = () => {
             role="list"
             aria-labelledby="tasks-heading"
           >
-            {filteredTasks.map(task => (
+            {tasks.map(task => (
               <article
                 key={task.id}
                 role="listitem"
