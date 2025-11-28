@@ -10,7 +10,7 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - REACT_APP_ENABLE_LAZY_LOADING=false
+      - REACT_APP_ENABLE_LAZY_LOADING=true
       - REACT_APP_LAZY_LOADING_DELAY=3000
     command: npm run dev
 
