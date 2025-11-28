@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { store } from '@store/index';
 import { useTasks } from '@hooks/useTasks';
-import { Task } from './types';
+import { Task, TaskStatus, TaskPriority } from './types';
 import './App.css';
 
 /**
@@ -34,8 +34,8 @@ const TasksPage: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    status: 'TODO' as const,
-    priority: 'MEDIUM' as const,
+    status: TaskStatus.TODO,
+    priority: TaskPriority.MEDIUM,
   });
 
   // Focus management for accessibility
@@ -60,7 +60,7 @@ const TasksPage: React.FC = () => {
 
   const handleCreateTask = () => {
     selectTask(null);
-    setFormData({ title: '', description: '', status: 'TODO', priority: 'MEDIUM' });
+    setFormData({ title: '', description: '', status: TaskStatus.TODO, priority: TaskPriority.MEDIUM });
     setShowForm(true);
   };
 
