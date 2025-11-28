@@ -80,4 +80,3 @@ export const sampleTasks = [
   { title: 'Improve error messages', description: 'Make error messages more user-friendly', status: TaskStatus.COMPLETED, priority: TaskPriority.LOW },
 ];
 
-// Made with Bob

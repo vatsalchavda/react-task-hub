@@ -50,4 +50,3 @@ export const UPDATE_TASK_STATUS = gql`
   }
 `;
 
-// Made with Bob

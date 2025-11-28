@@ -54,13 +54,16 @@ docker logs react-task-hub_app_1 -f
 
 ### Core Technologies
 - **React 18** - Modern functional components with hooks
+- **React Router v6** - Client-side routing with lazy loading
 - **Redux Toolkit** - State management with Redux Thunk
 - **TypeScript** - Full type safety throughout application
-- **Webpack 5** - Module bundling and optimization
+- **Webpack 5** - Module bundling and code splitting
 - **Docker** - Containerization for consistent deployment
 
 ### Key Features (Implemented)
 - ✅ Full CRUD operations (Create, Read, Update, Delete)
+- ✅ **Multi-page routing with React Router v6**
+- ✅ **Lazy loading with code splitting**
 - ✅ Redux state management with async operations
 - ✅ WCAG 2.1 AA accessibility compliance
 - ✅ Keyboard navigation support
@@ -129,9 +132,21 @@ docker logs react-task-hub_app_1 -f
 react-task-hub/
 ├── src/
 │   ├── components/              # React components
+│   │   ├── Navigation/         # Navigation bar with routing
+│   │   ├── Layout/             # Layout wrapper with Outlet
+│   │   ├── LoadingSpinner/     # Loading state component
 │   │   ├── TaskList/           # Task list display
 │   │   ├── TaskForm/           # Task creation/editing
 │   │   └── FilterBar/          # Status/priority filters
+│   ├── pages/                  # Route pages
+│   │   ├── Dashboard/          # Dashboard page (/)
+│   │   ├── TasksPage/          # Tasks management (/tasks)
+│   │   ├── Analytics/          # Analytics page (/analytics)
+│   │   ├── Settings/           # Settings page (/settings)
+│   │   ├── About/              # About page (/about)
+│   │   └── NotFound/           # 404 page
+│   ├── routes/                 # Route configuration
+│   │   └── index.tsx          # Centralized routes with lazy loading
 │   ├── store/                  # Redux store
 │   │   ├── index.ts           # Store configuration
 │   │   └── slices/
@@ -140,7 +155,9 @@ react-task-hub/
 │   │   └── useTasks.ts        # Task management hook
 │   ├── types/                  # TypeScript definitions
 │   │   └── index.ts           # Interfaces and enums
-│   ├── App.tsx                # Main application
+│   ├── data/                   # Sample data
+│   │   └── sampleTasks.ts     # 60 sample tasks for testing
+│   ├── App.tsx                # Main application with BrowserRouter
 │   ├── App.css                # Global styles
 │   └── index.tsx              # Entry point
 ├── public/
@@ -151,14 +168,75 @@ react-task-hub/
 ├── webpack.config.js          # Webpack configuration
 ├── tsconfig.json              # TypeScript configuration
 ├── README.md                  # Project documentation
-└── KNOWLEDGE_BASE.md          # Interview preparation guide
+└── KNOWLEDGE_BASE.md          # Technical reference guide
 ```
 
 ---
 
 ## 🎯 Key Features Explained
 
-### 1. Redux State Management
+### 1. React Router v6 with Lazy Loading
+
+**Why React Router?**
+- Client-side routing for SPA navigation
+- Code splitting for better performance
+- Nested routes with layout patterns
+- Programmatic navigation
+- 404 error handling
+
+**Route Structure:**
+```
+/ (Dashboard)           - Always loaded (no lazy loading)
+/tasks                  - Task management (lazy loaded)
+/analytics              - Analytics dashboard (lazy loaded)
+/settings               - Application settings (lazy loaded)
+/about                  - About page (lazy loaded)
+* (404)                 - Not found page
+```
+
+**Lazy Loading Configuration:**
+Configurable via `docker-compose.yml` environment variables:
+```yaml
+environment:
+  - REACT_APP_ENABLE_LAZY_LOADING=true
+  - REACT_APP_LAZY_LOADING_DELAY=3000  # 3 second delay for demo
+```
+
+**Implementation:**
+```typescript
+// Lazy load with configurable delay
+const Analytics = lazyWithDelay(() =>
+  import('../pages/Analytics/Analytics').then(m => ({ default: m.Analytics }))
+);
+
+// Route with Suspense fallback
+<Route
+  path="analytics"
+  element={
+    <Suspense fallback={<LoadingSpinner message="Loading Analytics..." />}>
+      <Analytics />
+    </Suspense>
+  }
+/>
+```
+
+**Benefits:**
+- Reduced initial bundle size (2.01 MB main + 4 lazy chunks)
+- Faster initial page load
+- On-demand loading of route components
+- Better user experience with loading states
+- Configurable for demo purposes
+
+**Code Splitting Results:**
+```
+bundle.9bf41ac6e7fc74b8bf23.js  2.01 MiB  (main bundle)
+bundle.e0def9bdee01ab048f72.js  80 KiB    (lazy chunk)
+bundle.e5641c3347706c276528.js  33.5 KiB  (lazy chunk)
+bundle.414ddcedf1898cd8e05a.js  33.1 KiB  (lazy chunk)
+bundle.54413b4d291f56d3806e.js  29.2 KiB  (lazy chunk)
+```
+
+### 2. Redux State Management
 
 **Why Redux?**
 - Centralized state management
@@ -179,7 +257,7 @@ export const createTask = createAsyncThunk(
 );
 ```
 
-### 2. Accessibility (WCAG 2.1 AA)
+### 3. Accessibility (WCAG 2.1 AA)
 
 **Keyboard Navigation:**
 - Tab: Navigate through elements
@@ -198,7 +276,7 @@ export const createTask = createAsyncThunk(
 - Logical tab order
 - Focus trap in modals
 
-### 3. Custom Hooks Pattern
+### 4. Custom Hooks Pattern
 
 **useTasks Hook:**
 Abstracts Redux complexity from components:
@@ -212,7 +290,7 @@ Benefits:
 - Easier testing
 - Better separation of concerns
 
-### 4. Pagination
+### 5. Pagination
 
 **Implementation:**
 - Redux-managed pagination state
@@ -246,7 +324,7 @@ const paginatedTasks = useMemo(() => {
 - Accessible with ARIA labels
 - Keyboard navigable
 
-### 5. TypeScript Type Safety
+### 6. TypeScript Type Safety
 
 **Full type coverage:**
 - Interface definitions for all data structures
@@ -393,13 +471,12 @@ docker-compose up --build
 
 ## 📚 Documentation
 
-### For Interview Preparation
+### Technical Reference
 
 See [`KNOWLEDGE_BASE.md`](./KNOWLEDGE_BASE.md) for:
 - Complete React, Redux, TypeScript concepts
-- 5-minute demo script
-- Common interview questions with answers
-- OpenText-specific preparation
+- Application demo guide
+- Common technical questions with answers
 - Accessibility guidelines
 - Best practices and patterns
 
@@ -531,13 +608,11 @@ MIT License - Free to use for learning and development
 
 ---
 
-## 🤝 Interview Context
+## 🎯 Project Highlights
 
-**Built for:** OpenText Senior Software Developer Interview  
-**Interview Date:** Tomorrow at 2:00 PM PST  
 **Application URL:** http://9.66.243.216:3000
 
-**Key Talking Points:**
+**Key Features:**
 - Enterprise-grade architecture
 - Redux state management with Redux Thunk
 - WCAG 2.1 AA accessibility compliance
@@ -547,4 +622,4 @@ MIT License - Free to use for learning and development
 
 ---
 
-**Built with ❤️ using React, Redux, TypeScript, Webpack, and Docker**
+**Built using React, Redux, TypeScript, Webpack, and Docker**

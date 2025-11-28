@@ -93,4 +93,3 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   );
 };
 
-// Made with Bob

@@ -44,4 +44,3 @@ export interface ApiResponse<T> {
   loading: boolean;
 }
 
-// Made with Bob

@@ -123,4 +123,3 @@ export const TaskList: React.FC<TaskListProps> = ({
   );
 };
 
-// Made with Bob

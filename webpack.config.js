@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './src/index.tsx',
@@ -38,6 +39,11 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.REACT_APP_ENABLE_LAZY_LOADING': JSON.stringify(process.env.REACT_APP_ENABLE_LAZY_LOADING || 'false'),
+      'process.env.REACT_APP_LAZY_LOADING_DELAY': JSON.stringify(process.env.REACT_APP_LAZY_LOADING_DELAY || '3000'),
+    }),
   ],
   devServer: {
     static: {
@@ -51,4 +57,3 @@ module.exports = {
   },
 };
 
-// Made with Bob
