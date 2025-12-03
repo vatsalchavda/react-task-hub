@@ -10,6 +10,8 @@ import {
   setPage,
   setItemsPerPage,
   updateTotalPages,
+  addTagToTask,
+  removeTagFromTask,
 } from '@store/slices/taskSlice';
 import { Task, TaskFilter, TaskStatus, TaskPriority } from '../types';
 
@@ -24,7 +26,11 @@ export const useTasks = () => {
     return tasks.filter(task => {
       const statusMatch = !filter.status || task.status === filter.status;
       const priorityMatch = !filter.priority || task.priority === filter.priority;
-      return statusMatch && priorityMatch;
+      
+      // ADD TAG FILTERING
+      const tagMatch = !filter.tags || filter.tags.length === 0 || 
+      filter.tags.some(filterTag => task.tags?.includes(filterTag));
+      return statusMatch && priorityMatch && tagMatch;
     });
   }, [tasks, filter]);
 
@@ -106,6 +112,29 @@ export const useTasks = () => {
     [dispatch]
   );
 
+  const handleAddTag = useCallback(
+    (taskId: string, tag: string) => {
+      dispatch(addTagToTask({ id: taskId, tag: tag.trim() }));
+    },
+    [dispatch]
+  );
+
+  const handleRemoveTag = useCallback(
+    (taskId: string, tag: string) => {
+      dispatch(removeTagFromTask({ id: taskId, tag }));
+    },
+    [dispatch]
+  );
+
+  // Get all unique tags from all tasks
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    tasks.forEach(task => {
+      task.tags?.forEach(tag => tagSet.add(tag));
+    });
+    return Array.from(tagSet).sort();
+  }, [tasks]);
+
   return {
     tasks: paginatedTasks,
     allTasks: tasks,
@@ -115,6 +144,9 @@ export const useTasks = () => {
     pagination,
     loading,
     error,
+    allTags,
+    addTag: handleAddTag,
+    removeTag: handleRemoveTag,
     createTask: handleCreateTask,
     updateTask: handleUpdateTask,
     deleteTask: handleDeleteTask,

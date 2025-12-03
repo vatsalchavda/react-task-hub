@@ -36,6 +36,7 @@ export interface TaskFilter {
   priority?: TaskPriority;
   assignee?: string;
   searchQuery?: string;
+  tags?: string[];
 }
 
 export interface ApiResponse<T> {

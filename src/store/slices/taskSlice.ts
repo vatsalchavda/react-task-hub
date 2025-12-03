@@ -171,7 +171,27 @@ const taskSlice = createSlice({
     updateTotalPages: (state, action: PayloadAction<number>) => {
       state.pagination.totalPages = action.payload;
     },
+    addTagToTask: (state, action: PayloadAction<{ id: string; tag: string }>) => {
+      const task = state.tasks.find(t => t.id === action.payload.id);
+      if (task) {
+        if (!task.tags) {
+          task.tags = [];
+        }
+        if (!task.tags.includes(action.payload.tag)) {
+          task.tags.push(action.payload.tag);
+          task.updatedAt = new Date().toISOString();
+        }
+      }
+    },
+    removeTagFromTask: (state, action: PayloadAction<{ id: string; tag: string }>) => {
+      const task = state.tasks.find(t => t.id === action.payload.id);
+      if (task && task.tags) {
+        task.tags = task.tags.filter(t => t !== action.payload.tag);
+        task.updatedAt = new Date().toISOString();
+      }
+    },
   },
+  
   extraReducers: (builder) => {
     builder
       // Fetch Tasks
@@ -235,7 +255,7 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setSelectedTask, setFilter, clearError, updateTaskStatus, setPage, setItemsPerPage, updateTotalPages } = taskSlice.actions;
+export const { setSelectedTask, setFilter, clearError, updateTaskStatus, setPage, setItemsPerPage, updateTotalPages, addTagToTask, removeTagFromTask } = taskSlice.actions;
 export default taskSlice.reducer;
 
 /**

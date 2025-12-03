@@ -1,5 +1,6 @@
 import React from 'react';
 import { TaskStatus, TaskPriority, TaskFilter } from '../../types';
+import { useTasks } from '@hooks/useTasks';
 import './FilterBar.css';
 
 interface FilterBarProps {
@@ -13,6 +14,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onFilterChange,
   onCreateTask,
 }) => {
+  const { allTags } = useTasks();
+  
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     onFilterChange({
@@ -36,11 +39,23 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     });
   };
 
+  const handleTagToggle = (tag: string) => {
+    const currentTags = filter.tags || [];
+    const newTags = currentTags.includes(tag)
+      ? currentTags.filter(t => t !== tag)
+      : [...currentTags, tag];
+    
+    onFilterChange({
+      ...filter,
+      tags: newTags.length > 0 ? newTags : undefined,
+    });
+  };
+
   const handleClearFilters = () => {
     onFilterChange({});
   };
 
-  const hasActiveFilters = filter.status || filter.priority || filter.searchQuery;
+  const hasActiveFilters = filter.status || filter.priority || filter.searchQuery || (filter.tags && filter.tags.length > 0);
 
   return (
     <div className="filter-bar">
@@ -78,6 +93,24 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <option value={TaskPriority.HIGH}>High</option>
           <option value={TaskPriority.URGENT}>Urgent</option>
         </select>
+
+        {allTags.length > 0 && (
+          <div className="tag-filter-section">
+            <label className="filter-label">Filter by Tags:</label>
+            <div className="tag-chips">
+              {allTags.map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => handleTagToggle(tag)}
+                  className={`tag-chip ${filter.tags?.includes(tag) ? 'active' : ''}`}
+                  type="button"
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {hasActiveFilters && (
           <button className="clear-filters-btn" onClick={handleClearFilters}>

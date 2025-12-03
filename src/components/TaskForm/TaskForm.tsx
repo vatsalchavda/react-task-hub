@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskPriority } from '../../types';
+import { TagInput } from '../TagInput/TagInput';
+import { useTasks } from '@hooks/useTasks';
 import './TaskForm.css';
 
 interface TaskFormProps {
@@ -9,13 +11,15 @@ interface TaskFormProps {
 }
 
 export const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
+  const { allTags } = useTasks();
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     status: TaskStatus.TODO,
     priority: TaskPriority.MEDIUM,
     assignee: '',
-    tags: '',
+    tags: [] as string[],
   });
 
   useEffect(() => {
@@ -26,7 +30,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) 
         status: task.status,
         priority: task.priority,
         assignee: task.assignee || '',
-        tags: task.tags?.join(', ') || '',
+        tags: task.tags || [],
       });
     }
   }, [task]);
@@ -50,9 +54,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) 
       status: formData.status as TaskStatus,
       priority: formData.priority as TaskPriority,
       assignee: formData.assignee || undefined,
-      tags: formData.tags
-        ? formData.tags.split(',').map((tag) => tag.trim()).filter(Boolean)
-        : undefined,
+      tags: formData.tags.length > 0 ? formData.tags : undefined,
     };
 
     onSubmit(taskData);
@@ -140,14 +142,18 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) 
           </div>
 
           <div className="form-group">
-            <label htmlFor="tags">Tags (comma-separated)</label>
-            <input
-              type="text"
-              id="tags"
-              name="tags"
-              value={formData.tags}
-              onChange={handleChange}
-              placeholder="e.g., frontend, bug, urgent"
+            <label>Tags</label>
+            <TagInput
+              tags={formData.tags}
+              suggestions={allTags}
+              onAddTag={(tag) => setFormData(prev => ({
+                ...prev,
+                tags: [...prev.tags, tag]
+              }))}
+              onRemoveTag={(tag) => setFormData(prev => ({
+                ...prev,
+                tags: prev.tags.filter(t => t !== tag)
+              }))}
             />
           </div>
 
